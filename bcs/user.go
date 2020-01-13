@@ -12,8 +12,8 @@ import (
 )
 
 type User struct {
-	UserAccount UserAccount  `json:"userAccount"`
-	Enrollments []Enrollment `json:"enrollments"`
+	UserAccount UserAccount `json:"userAccount"`
+	Enrollments Enrollments `json:"enrollments"`
 }
 
 type BcsExtends struct {
@@ -118,6 +118,8 @@ type Enrollment struct {
 	PendingRemoteAttendanceRequestCount int                     `json:"pendingRemoteAttendanceRequestCount"`
 }
 
+type Enrollments []Enrollment
+
 func GetUser() User {
 	req := RestRequest{
 		Method: http.MethodGet,
@@ -152,7 +154,13 @@ func (u User) PrintEnrollments() {
 }
 
 func (u User) ChooseEnrollment() Enrollment {
-	if len(u.Enrollments) == 1 {
+	enrs := u.Enrollments.Filter()
+	if len(enrs) == 0 {
+		fmt.Println("no enrolments found")
+		os.Exit(1)
+	}
+
+	if len(enrs) == 1 {
 		e := u.Enrollments[0]
 		CourseID = e.CourseID
 		EnrollmentID = e.ID
@@ -171,4 +179,23 @@ func (u User) ChooseEnrollment() Enrollment {
 	EnrollmentID = e.ID
 
 	return e
+}
+
+func (e Enrollments) Filter() Enrollments {
+	if CourseID == -1 && EnrollmentID == -1 {
+		return e
+	}
+
+	enrollments := Enrollments{}
+	for _, enr := range e {
+		if enr.CourseID == CourseID || enr.ID == EnrollmentID {
+			enrollments = append(enrollments, enr)
+		}
+	}
+
+	if len(enrollments) == 0 {
+		return e
+	}
+
+	return enrollments
 }

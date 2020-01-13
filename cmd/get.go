@@ -31,7 +31,7 @@ var getAssignmentsCmd = &cobra.Command{
 	Aliases: []string{"assignment", "as"},
 	Short:   "This command is used to get student assignment submissions",
 	Run: func(cmd *cobra.Command, args []string) {
-		setEnrollmentID()
+		setAll()
 		assignments := bcs.GetGrades()
 		assignments.Metrics().Print()
 	},
@@ -91,6 +91,7 @@ func init() {
 
 	getFeedbackCmd.Flags().IntVarP(&bcs.CourseID, "course-id", "c", -1, "Course ID (optional)")
 	getAttendanceCmd.Flags().IntVarP(&bcs.CourseID, "course-id", "c", -1, "Course ID (optional)")
+	getAssignmentsCmd.Flags().IntVarP(&bcs.CourseID, "course-id", "c", -1, "Course ID (optional)")
 
 	getAssignmentsCmd.Flags().IntVarP(&bcs.EnrollmentID, "enrollment-id", "e", -1, "Enrollment ID (optional)")
 	getAttendanceCmd.Flags().IntVarP(&bcs.EnrollmentID, "enrollment-id", "e", -1, "Enrollment ID (optional)")
