@@ -12,10 +12,10 @@ import (
 )
 
 type Grades []struct {
-	AssignmentTitle string      `json:"assignmentTitle"`
-	StudentName     string      `json:"studentName"`
-	Submitted       bool        `json:"submitted"`
-	Grade           interface{} `json:"grade"`
+	AssignmentTitle string `json:"assignmentTitle"`
+	StudentName     string `json:"studentName"`
+	Submitted       bool   `json:"submitted"`
+	Grade           string `json:"grade"`
 }
 
 func GetGrades() Grades {
@@ -39,6 +39,7 @@ func GetGrades() Grades {
 type GradesMetric struct {
 	Submitted    int
 	NotSubmitted int
+	Incomplete   int
 }
 
 type GradesMetrics map[string]GradesMetric
@@ -57,6 +58,9 @@ func (grades Grades) Metrics() GradesMetrics {
 			m.Submitted += 1
 		} else {
 			m.NotSubmitted += 1
+		}
+		if g.Grade == "Incomplete" {
+			m.Incomplete += 1
 		}
 		metrics[name] = m
 	}
@@ -80,7 +84,7 @@ func (gm GradesMetrics) sort() GradesMetrics {
 }
 
 func (gm GradesMetrics) Print() {
-	header := []string{"Student", "Required Submitted", "Required Not Submitted"}
+	header := []string{"Student", "Submitted", "Not Submitted", "Incomplete"}
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader(header)
 
@@ -95,7 +99,7 @@ func (gm GradesMetrics) Print() {
 		if m.Submitted == 0 {
 			continue
 		}
-		row := []string{student, strconv.Itoa(m.Submitted), strconv.Itoa(m.NotSubmitted)}
+		row := []string{student, strconv.Itoa(m.Submitted), strconv.Itoa(m.NotSubmitted), strconv.Itoa(m.Incomplete)}
 		table.Append(row)
 	}
 
