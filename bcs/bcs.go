@@ -3,9 +3,7 @@ package bcs
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -91,7 +89,7 @@ func (req *RestRequest) Send(iff interface{}) error {
 
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
-		return restError(resp)
+		return fmt.Errorf("REST error: code: %d", resp.StatusCode)
 	}
 
 	err = json.NewDecoder(resp.Body).Decode(iff)
@@ -128,12 +126,4 @@ func (req *RestRequest) build() (r *http.Request, err error) {
 	r.Header.Add("authToken", authToken)
 	r.Header.Add("Accept", "application/json")
 	return
-}
-
-func restError(resp *http.Response) error {
-	b, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-	return errors.New(string(b))
 }

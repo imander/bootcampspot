@@ -156,7 +156,7 @@ func (u User) PrintEnrollments() {
 func (u User) ChooseEnrollment() Enrollment {
 	enrs := u.Enrollments.Filter()
 	if len(enrs) == 0 {
-		fmt.Println("no enrolments found")
+		fmt.Println("no enrollments found")
 		os.Exit(1)
 	}
 
