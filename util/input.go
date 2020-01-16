@@ -42,5 +42,5 @@ func getInput() string {
 		os.Exit(1)
 	}
 
-	return strings.Trim(line, "\n")
+	return strings.Trim(line, "\r\n")
 }
