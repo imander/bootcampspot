@@ -10,7 +10,7 @@ import (
 
 func main() {
 	args := os.Args
-	prompt := len(args) > 1 && strings.HasPrefix(args[1], "conf")
+	prompt := len(args) == 0 || (len(args) > 1 && strings.HasPrefix(args[1], "conf"))
 	config.Load(!prompt)
 	cmd.Execute()
 }

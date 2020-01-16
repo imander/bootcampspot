@@ -41,7 +41,7 @@ func bcsURL() url.URL {
 
 	baseURL, err = url.Parse(config.BCS.URL)
 	if err != nil {
-		fmt.Printf("error: %v\n url: %s", err, config.BCS.URL)
+		fmt.Printf("error: %s\n url: %s\n", err.Error(), config.BCS.URL)
 		os.Exit(1)
 	}
 

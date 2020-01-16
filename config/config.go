@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/imander/bootcampspot/util"
+	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
 	"golang.org/x/crypto/ssh/terminal"
 )
@@ -25,16 +27,18 @@ var BCS = &Configuration{}
 
 // Load loads the bcs configurtion into the runtime
 func Load(prompt bool) {
-	viper.SetConfigFile(configFile())
+	f := configFile()
+
+	if _, err := os.Stat(f); os.IsNotExist(err) {
+		if prompt {
+			promptConfig()
+			os.Exit(0)
+		}
+	}
+
+	viper.SetConfigFile(f)
 
 	if err := viper.ReadInConfig(); err != nil {
-		if strings.Contains(err.Error(), "no such file") {
-			if prompt {
-				promptConfig()
-				os.Exit(0)
-			}
-			return
-		}
 		log.Fatal(err)
 	}
 
@@ -106,5 +110,11 @@ func promptConfig() {
 }
 
 func configFile() string {
-	return os.Getenv("HOME") + "/.bcs.yaml"
+	home, err := homedir.Dir()
+	if err != nil {
+		fmt.Printf("error: %s\n", err.Error())
+		os.Exit(1)
+	}
+	p := home + "/.bcs.json"
+	return filepath.FromSlash(p)
 }

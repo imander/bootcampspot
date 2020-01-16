@@ -46,7 +46,7 @@ func GetAssignments() AssignmentResponse {
 	body := AssignmentResponse{}
 	err := req.Send(&body)
 	if err != nil {
-		fmt.Printf("error: %+v\n", err)
+		fmt.Printf("error: %s\n", err.Error())
 		os.Exit(1)
 	}
 
