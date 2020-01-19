@@ -120,7 +120,7 @@ type Enrollment struct {
 
 type Enrollments []Enrollment
 
-func GetUser() User {
+func GetUser() (User, error) {
 	req := RestRequest{
 		Method: http.MethodGet,
 		Path:   userResource,
@@ -128,12 +128,7 @@ func GetUser() User {
 
 	body := User{}
 	err := req.Send(&body)
-	if err != nil {
-		fmt.Printf("error: %s\n", err.Error())
-		os.Exit(1)
-	}
-
-	return body
+	return body, err
 }
 
 func (u User) PrintEnrollments() {

@@ -21,8 +21,16 @@ var getAttendanceCmd = &cobra.Command{
 	Short:   "This command is used to get student attendance statistics",
 	Run: func(cmd *cobra.Command, args []string) {
 		setAll()
-		attendance := bcs.GetAttendance()
-		attendance.Metrics().Print()
+		attendance, err := bcs.GetAttendance()
+		if err != nil {
+			exitError(err)
+		}
+
+		m, err := attendance.Metrics()
+		if err != nil {
+			exitError(err)
+		}
+		m.Print()
 	},
 }
 
@@ -32,8 +40,16 @@ var getAssignmentsCmd = &cobra.Command{
 	Short:   "This command is used to get student assignment submissions",
 	Run: func(cmd *cobra.Command, args []string) {
 		setAll()
-		assignments := bcs.GetGrades()
-		assignments.Metrics().Print()
+		assignments, err := bcs.GetGrades()
+		if err != nil {
+			exitError(err)
+		}
+
+		m, err := assignments.Metrics()
+		if err != nil {
+			exitError(err)
+		}
+		m.Print()
 	},
 }
 
@@ -43,8 +59,11 @@ var getFeedbackCmd = &cobra.Command{
 	Short:   "This command is used to get student feedback responses",
 	Run: func(cmd *cobra.Command, args []string) {
 		setCourseID()
-		feedbacks := bcs.GetFeedback()
-		feedbacks.Print()
+		feedback, err := bcs.GetFeedback()
+		if err != nil {
+			exitError(err)
+		}
+		feedback.Print()
 	},
 }
 
@@ -53,7 +72,10 @@ var getEnrollmentsCmd = &cobra.Command{
 	Aliases: []string{"enrollment", "e"},
 	Short:   "This command is used to get user course enrollments",
 	Run: func(cmd *cobra.Command, args []string) {
-		user := bcs.GetUser()
+		user, err := bcs.GetUser()
+		if err != nil {
+			exitError(err)
+		}
 		user.PrintEnrollments()
 	},
 }
@@ -62,7 +84,10 @@ func setCourseID() {
 	if bcs.CourseID != -1 {
 		return
 	}
-	u := bcs.GetUser()
+	u, err := bcs.GetUser()
+	if err != nil {
+		exitError(err)
+	}
 	u.ChooseEnrollment()
 }
 
@@ -70,16 +95,16 @@ func setEnrollmentID() {
 	if bcs.EnrollmentID != -1 {
 		return
 	}
-	u := bcs.GetUser()
+	u, err := bcs.GetUser()
+	if err != nil {
+		exitError(err)
+	}
 	u.ChooseEnrollment()
 }
 
 func setAll() {
-	if bcs.CourseID != -1 && bcs.EnrollmentID != -1 {
-		return
-	}
-	u := bcs.GetUser()
-	u.ChooseEnrollment()
+	setCourseID()
+	setEnrollmentID()
 }
 
 func init() {

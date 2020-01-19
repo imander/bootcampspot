@@ -30,7 +30,7 @@ type AttendanceMetric struct {
 
 type AttendanceMetrics map[string]AttendanceMetric
 
-func GetAttendance() Attendances {
+func GetAttendance() (Attendances, error) {
 	data := CourseBody{ID: CourseID}
 	req := RestRequest{
 		Method: http.MethodPost,
@@ -40,17 +40,16 @@ func GetAttendance() Attendances {
 
 	body := Attendances{}
 	err := req.Send(&body)
-	if err != nil {
-		fmt.Printf("error: %s\n", err.Error())
-		os.Exit(1)
-	}
-
-	return body
+	return body, err
 }
 
-func (att Attendances) Metrics() AttendanceMetrics {
+func (att Attendances) Metrics() (AttendanceMetrics, error) {
 	metrics := AttendanceMetrics{}
-	sm := GetSessions().Academic().nameMap()
+	sessions, err := GetSessions()
+	if err != nil {
+		return metrics, err
+	}
+	sm := sessions.Academic().nameMap()
 
 	for _, a := range att {
 		if !sm[a.SessionName] {
@@ -69,7 +68,7 @@ func (att Attendances) Metrics() AttendanceMetrics {
 		metrics[name] = m
 	}
 
-	return metrics
+	return metrics, nil
 }
 
 func (am AttendanceMetrics) sort() {

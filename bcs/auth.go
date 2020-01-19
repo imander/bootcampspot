@@ -1,9 +1,7 @@
 package bcs
 
 import (
-	"fmt"
 	"net/http"
-	"os"
 )
 
 type AuthBody struct {
@@ -23,7 +21,7 @@ type AuthResponse struct {
 	} `json:"authenticationInfo"`
 }
 
-func (ab *AuthBody) GetToken() {
+func (ab *AuthBody) GetToken() error {
 	body := &AuthResponse{}
 	req := RestRequest{
 		Method: http.MethodPost,
@@ -33,9 +31,9 @@ func (ab *AuthBody) GetToken() {
 
 	err := req.Send(body)
 	if err != nil {
-		fmt.Printf("error: %s\n", err.Error())
-		os.Exit(1)
+		return err
 	}
 
 	authToken = body.AuthenticationInfo.AuthToken
+	return nil
 }

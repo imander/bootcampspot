@@ -1,9 +1,7 @@
 package bcs
 
 import (
-	"fmt"
 	"net/http"
-	"os"
 	"time"
 )
 
@@ -35,7 +33,7 @@ type Assignment struct {
 	Context               Context   `json:"context"`
 }
 
-func GetAssignments() AssignmentResponse {
+func GetAssignments() (AssignmentResponse, error) {
 	data := EnrollementBody{ID: EnrollmentID}
 	req := RestRequest{
 		Method: http.MethodPost,
@@ -45,12 +43,7 @@ func GetAssignments() AssignmentResponse {
 
 	body := AssignmentResponse{}
 	err := req.Send(&body)
-	if err != nil {
-		fmt.Printf("error: %s\n", err.Error())
-		os.Exit(1)
-	}
-
-	return body
+	return body, err
 }
 
 type Assignments []Assignment

@@ -1,7 +1,6 @@
 package bcs
 
 import (
-	"fmt"
 	"net/http"
 	"os"
 	"sort"
@@ -18,7 +17,7 @@ type Grades []struct {
 	Grade           string `json:"grade"`
 }
 
-func GetGrades() Grades {
+func GetGrades() (Grades, error) {
 	data := CourseBody{ID: CourseID}
 	req := RestRequest{
 		Method: http.MethodPost,
@@ -28,12 +27,7 @@ func GetGrades() Grades {
 
 	body := Grades{}
 	err := req.Send(&body)
-	if err != nil {
-		fmt.Printf("error: %s\n", err.Error())
-		os.Exit(1)
-	}
-
-	return body
+	return body, err
 }
 
 type GradesMetric struct {
@@ -44,9 +38,13 @@ type GradesMetric struct {
 
 type GradesMetrics map[string]GradesMetric
 
-func (grades Grades) Metrics() GradesMetrics {
+func (grades Grades) Metrics() (GradesMetrics, error) {
 	metrics := GradesMetrics{}
-	am := GetAssignments().Academic().nameMap()
+	assignments, err := GetAssignments()
+	if err != nil {
+		return metrics, err
+	}
+	am := assignments.Academic().nameMap()
 
 	for _, g := range grades {
 		if !am[g.AssignmentTitle] {
@@ -65,7 +63,7 @@ func (grades Grades) Metrics() GradesMetrics {
 		metrics[name] = m
 	}
 
-	return metrics.sort()
+	return metrics.sort(), nil
 }
 
 func (gm GradesMetrics) sort() GradesMetrics {

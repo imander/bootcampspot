@@ -1,9 +1,7 @@
 package bcs
 
 import (
-	"fmt"
 	"net/http"
-	"os"
 	"time"
 )
 
@@ -49,7 +47,7 @@ type CalendarSessions struct {
 
 type Sessions []Session
 
-func GetSessions() SessionResponse {
+func GetSessions() (SessionResponse, error) {
 	data := EnrollementBody{ID: EnrollmentID}
 	req := RestRequest{
 		Method: http.MethodPost,
@@ -59,12 +57,7 @@ func GetSessions() SessionResponse {
 
 	body := SessionResponse{}
 	err := req.Send(&body)
-	if err != nil {
-		fmt.Printf("error: %s\n", err.Error())
-		os.Exit(1)
-	}
-
-	return body
+	return body, err
 }
 
 func (sr SessionResponse) Academic() Sessions {

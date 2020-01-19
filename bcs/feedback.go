@@ -3,7 +3,6 @@ package bcs
 import (
 	"fmt"
 	"net/http"
-	"os"
 	"strconv"
 )
 
@@ -27,7 +26,7 @@ type FeedbackResponse struct {
 	} `json:"submissions"`
 }
 
-func GetFeedback() FeedbackResponse {
+func GetFeedback() (FeedbackResponse, error) {
 	data := CourseBody{ID: CourseID}
 	req := RestRequest{
 		Method: http.MethodPost,
@@ -37,12 +36,7 @@ func GetFeedback() FeedbackResponse {
 
 	body := FeedbackResponse{}
 	err := req.Send(&body)
-	if err != nil {
-		fmt.Printf("error: %s\n", err.Error())
-		os.Exit(1)
-	}
-
-	return body
+	return body, err
 }
 
 func (fr FeedbackResponse) questionMap() map[int]string {

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"os"
 	"strings"
 
 	"github.com/imander/bootcampspot/config"
@@ -22,7 +21,7 @@ var (
 	userResource       = "/me"
 
 	authToken  string
-	baseURL    = &url.URL{}
+	baseURL    *url.URL
 	httpClient = &http.Client{}
 	layoutISO  = "2006-01-02"
 
@@ -31,29 +30,22 @@ var (
 	EnrollmentID int
 )
 
-func bcsURL() url.URL {
+func bcsURL() (url.URL, error) {
 	var err error
 	if baseURL != nil {
-		return *baseURL
+		return *baseURL, nil
 	}
 
 	baseURL, err = url.Parse(config.BCS.URL)
-	if err != nil {
-		fmt.Printf("error: %s\n url: %s\n", err.Error(), config.BCS.URL)
-		os.Exit(1)
-	}
-
-	return *baseURL
+	return *baseURL, err
 }
 
-func getToken() {
-	baseURL, _ = url.Parse(config.BCS.URL)
-
+func getToken() error {
 	ab := AuthBody{
 		Email:    config.BCS.User,
 		Password: config.BCS.Password,
 	}
-	ab.GetToken()
+	return ab.GetToken()
 }
 
 // RestRequest stores all the needed data to send a REST call to appsec services
@@ -74,7 +66,10 @@ type EnrollementBody struct {
 
 func (req *RestRequest) Send(iff interface{}) error {
 	if authToken == "" && !strings.HasSuffix(req.Path, authResource) {
-		getToken()
+		err := getToken()
+		if err != nil {
+			return err
+		}
 	}
 
 	r, err := req.build()
@@ -101,7 +96,10 @@ func (req *RestRequest) Send(iff interface{}) error {
 }
 
 func (req *RestRequest) build() (r *http.Request, err error) {
-	u := bcsURL()
+	u, err := bcsURL()
+	if err != nil {
+		return nil, err
+	}
 	u.Path = u.Path + req.Path
 
 	if req.Data != nil {
